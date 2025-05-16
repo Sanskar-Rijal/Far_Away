@@ -1,16 +1,20 @@
 import React from "react";
 
-const initialItems = [
-  { id: 1, description: "Passports", quantity: 2, packed: false },
-  { id: 2, description: "Socks", quantity: 12, packed: true },
-];
-
 export default function App() {
+  //checking the new item in console
+
+  const [items, setItems] = React.useState([]);
+
+  function handleAddItem(item) {
+    setItems((it) => [...it, item]); //it is the previous state , using spread operator
+    console.log(setItems);
+  }
+
   return (
     <div className="app">
       <Logo />
-      <Form />
-      <PackingList />
+      <Form onAddItems={handleAddItem} />
+      <PackingList items={items} />
       <Stats />
     </div>
   );
@@ -20,7 +24,7 @@ function Logo() {
   return <h1>Far Away</h1>;
 }
 
-function Form() {
+function Form(props) {
   //to use control elements we follow three steps
   //step 1: create a state
   //step 2: use the state to the input element that we want to control
@@ -29,26 +33,27 @@ function Form() {
 
   const [selected, setSelected] = React.useState(1);
 
-  //checking the new item in console
-
   const newItem = {
     id: Date.now(),
-    description,
-    selected,
+    description: description,
+    selected: selected,
     packed: false,
   };
 
-  console.log(newItem);
+  //console.log(newItem);
 
   function handleSubmit(event) {
     event.preventDefault();
     if (!description) return;
     console.log(event);
+    //saving the currently added item in the array
+    props.onAddItems(newItem);
     setDescription("");
     setSelected(1);
   }
 
   return (
+    //  pressing enter will also work if we use onSubmit on form
     <form className="add-form" onSubmit={handleSubmit}>
       <h3>What do you Need for you Trip?</h3>
       <select
@@ -81,12 +86,12 @@ function Form() {
   );
 }
 
-function PackingList() {
+function PackingList(props) {
   return (
     <div className="list">
       <ul>
-        {initialItems.map((it) => (
-          <Item item={it} key={it.id} />
+        {props.items.map((it) => (
+          <Item items={it} key={it.id} />
         ))}
       </ul>
     </div>
@@ -98,12 +103,12 @@ function Item(props) {
     <li>
       <span
         style={{
-          textDecoration: props.item.packed ? "line-through" : "none",
+          textDecoration: props.items.packed ? "line-through" : "none",
         }}
       >
-        {props.item.quantity} {props.item.description}
+        {props.items.description}
       </span>
-      <button>{props.item.packed ? "✅" : "❌"}</button>
+      <button>{props.items.packed ? "✅" : "❌"}</button>
     </li>
   );
 }
