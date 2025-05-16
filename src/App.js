@@ -5,16 +5,36 @@ export default function App() {
 
   const [items, setItems] = React.useState([]);
 
+  function handlePack(id) {
+    setItems((it) =>
+      it.map((items) => {
+        if (items.id === id) {
+          return { ...items, packed: !items.packed }; //returning object items by overriding packed property
+        }
+        return items;
+      })
+    );
+  }
+
   function handleAddItem(item) {
     setItems((it) => [...it, item]); //it is the previous state , using spread operator
     console.log(setItems);
+  }
+
+  //delete item by clicking cross
+  function handleDeleteItem(id) {
+    setItems((it) => it.filter((item) => item.id !== id)); //when item.id==id then it will not be included in the new array
   }
 
   return (
     <div className="app">
       <Logo />
       <Form onAddItems={handleAddItem} />
-      <PackingList items={items} />
+      <PackingList
+        items={items}
+        onDeleteItems={handleDeleteItem}
+        onCheckedBox={handlePack}
+      />
       <Stats />
     </div>
   );
@@ -91,7 +111,12 @@ function PackingList(props) {
     <div className="list">
       <ul>
         {props.items.map((it) => (
-          <Item items={it} key={it.id} />
+          <Item
+            items={it}
+            key={it.id}
+            onDeleteItems={props.onDeleteItems}
+            onCheckedBox={props.onCheckedBox}
+          />
         ))}
       </ul>
     </div>
@@ -101,14 +126,26 @@ function PackingList(props) {
 function Item(props) {
   return (
     <li>
+      <input
+        type="checkbox"
+        value={props.items.packed}
+        id={props.items.id}
+        onChange={() => props.onCheckedBox(props.items.id)}
+      />
       <span
         style={{
           textDecoration: props.items.packed ? "line-through" : "none",
         }}
       >
-        {props.items.description}
+        {props.items.selected} : {props.items.description}
       </span>
-      <button>{props.items.packed ? "✅" : "❌"}</button>
+      <button
+        onClick={() => {
+          props.onDeleteItems(props.items.id); //if we don't use ()=> react will call the function immediately , which we don't want
+        }}
+      >
+        {props.items.packed ? "✅" : "❌"}
+      </button>
     </li>
   );
 }
