@@ -35,7 +35,7 @@ export default function App() {
         onDeleteItems={handleDeleteItem}
         onCheckedBox={handlePack}
       />
-      <Stats />
+      <Stats items={items} />
     </div>
   );
 }
@@ -107,6 +107,8 @@ function Form(props) {
 }
 
 function PackingList(props) {
+  const [selected, setSelected] = React.useState("input");
+
   return (
     <div className="list">
       <ul>
@@ -119,6 +121,19 @@ function PackingList(props) {
           />
         ))}
       </ul>
+
+      <div className="actions">
+        <select
+          value={selected}
+          onChange={(event) => {
+            setSelected(event.target.value);
+          }}
+        >
+          <option value="input">Sort by the input order</option>
+          <option value="description">Sort by description</option>
+          <option value="packed">Sort by packed status</option>
+        </select>
+      </div>
     </div>
   );
 }
@@ -150,11 +165,25 @@ function Item(props) {
   );
 }
 
-function Stats() {
+function Stats(props) {
+  if (props.items.length === 0) {
+    return (
+      <footer className="stats">
+        <em>Start by adding some items on the list 🥹</em>
+      </footer>
+    );
+  }
+  const numItems = props.items.length;
+  const numPacked = props.items.filter((it) => it.packed === true).length;
+  const percentage = Math.round((numPacked / numItems) * 100);
+
   return (
     <footer className="stats">
       <em>
-        YOu have addded abx items on your list and you already packed hehehe
+        {percentage === 100
+          ? `You are ready to go 🥳`
+          : `You have ${numItems} items on your list and you have already packed
+        ${numPacked} of them which is ${percentage}% of the total items.`}
       </em>
     </footer>
   );
